@@ -1,8 +1,8 @@
 let player;
 let cursors;
+let isTouchActive = false; // Track if touch input is being used
 
 function preload() {
-    // Load assets for rabbit, carrots, poop, etc.
     this.load.image('rabbit', 'assets/rabbit.png');
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('poop', 'assets/poop.png');
@@ -10,18 +10,17 @@ function preload() {
 }
 
 function create() {
-    // Add background
     this.add.image(400, 300, 'background');
 
-    // Create player (rabbit)
     player = this.physics.add.sprite(400, 500, 'rabbit');
     player.setCollideWorldBounds(true);
 
-    // Set up keyboard controls
+    // Keyboard controls
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Set up touch controls for mobile
+    // Touch controls for mobile
     this.input.on('pointerdown', (pointer) => {
+        isTouchActive = true; // Touch is now active
         if (pointer.x < this.cameras.main.width / 2) {
             player.setVelocityX(-160); // Move left on touch
         } else {
@@ -29,24 +28,28 @@ function create() {
         }
     });
 
-    // Stop movement when the touch ends
+    // Stop movement when touch ends
     this.input.on('pointerup', () => {
+        isTouchActive = false; // Touch input is no longer active
         player.setVelocityX(0);
     });
 }
 
 function update() {
-    // Handle keyboard controls for desktop
-    if (cursors.left.isDown) {
-        player.setVelocityX(-160);
-    } else if (cursors.right.isDown) {
-        player.setVelocityX(160);
-    } else {
-        player.setVelocityX(0);  // Stop the player if no key is pressed
+    // Only process keyboard input if touch input is not active
+    if (!isTouchActive) {
+        if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+        } else {
+            player.setVelocityX(0); // Stop movement when no key is pressed
+        }
     }
 
-    // Mobile touch input to keep the player moving while touching the screen
+    // Mobile touch input continues to move the player while touching
     if (this.input.activePointer.isDown) {
+        isTouchActive = true; // Track active touch input
         if (this.input.activePointer.x < this.cameras.main.width / 2) {
             player.setVelocityX(-160); // Move left
         } else {
