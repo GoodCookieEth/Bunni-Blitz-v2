@@ -21,7 +21,7 @@ function create() {
     // Set up cursor keys for desktop users
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Handle touch input for mobile devices
+    // Mobile touch control setup
     this.input.on('pointerdown', (pointer) => {
         if (pointer.x < this.cameras.main.width / 2) {
             // Touch on the left side, move left
@@ -39,7 +39,7 @@ function create() {
 }
 
 function update() {
-    // Desktop controls for arrow keys or A/D keys
+    // Handle desktop keyboard controls
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
     } else if (cursors.right.isDown) {
@@ -48,9 +48,8 @@ function update() {
         player.setVelocityX(0);  // Stop the player if no key is pressed
     }
 
-    // Ensure mobile touch works properly with velocity handling
+    // Handle mobile touch input
     if (this.input.activePointer.isDown) {
-        // This ensures touch input works continuously
         if (this.input.activePointer.x < this.cameras.main.width / 2) {
             player.setVelocityX(-160);
         } else {
@@ -63,10 +62,11 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
+    parent: 'phaser-game', // Ensure it's attached to the correct DOM element
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 0 }, // Gravity should be disabled for side-to-side movement
             debug: false
         }
     },
