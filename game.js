@@ -21,7 +21,7 @@ function create() {
     // Set up cursor keys for desktop users
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Set up touch controls for mobile
+    // Handle touch input for mobile devices
     this.input.on('pointerdown', (pointer) => {
         if (pointer.x < this.cameras.main.width / 2) {
             // Touch on the left side, move left
@@ -32,17 +32,9 @@ function create() {
         }
     });
 
-    // Stop moving the rabbit when touch is released
+    // Stop the player when the touch is released
     this.input.on('pointerup', () => {
         player.setVelocityX(0);
-    });
-
-    // For mobile, prevent touch scrolling while playing the game
-    this.input.addPointer(1); // Allows multi-touch support
-    this.input.on('pointerdown', (pointer) => {
-        if (pointer.isDown) {
-            pointer.event.preventDefault(); // Prevent page scrolling on touch
-        }
     });
 }
 
@@ -56,7 +48,15 @@ function update() {
         player.setVelocityX(0);  // Stop the player if no key is pressed
     }
 
-    // Update game state, falling carrots, poop, etc.
+    // Ensure mobile touch works properly with velocity handling
+    if (this.input.activePointer.isDown) {
+        // This ensures touch input works continuously
+        if (this.input.activePointer.x < this.cameras.main.width / 2) {
+            player.setVelocityX(-160);
+        } else {
+            player.setVelocityX(160);
+        }
+    }
 }
 
 const config = {
