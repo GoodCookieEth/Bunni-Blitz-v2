@@ -21,8 +21,8 @@ function create() {
     // Set up cursor keys for desktop users
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Set up touch controls for mobile users
-    this.input.on('pointerdown', function (pointer) {
+    // Set up touch controls for mobile
+    this.input.on('pointerdown', (pointer) => {
         if (pointer.x < this.cameras.main.width / 2) {
             // Touch on the left side, move left
             player.setVelocityX(-160);
@@ -30,12 +30,20 @@ function create() {
             // Touch on the right side, move right
             player.setVelocityX(160);
         }
-    }, this);
+    });
 
     // Stop moving the rabbit when touch is released
-    this.input.on('pointerup', function () {
+    this.input.on('pointerup', () => {
         player.setVelocityX(0);
-    }, this);
+    });
+
+    // For mobile, prevent touch scrolling while playing the game
+    this.input.addPointer(1); // Allows multi-touch support
+    this.input.on('pointerdown', (pointer) => {
+        if (pointer.isDown) {
+            pointer.event.preventDefault(); // Prevent page scrolling on touch
+        }
+    });
 }
 
 function update() {
