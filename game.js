@@ -2,7 +2,7 @@ let player;
 let cursors;
 
 function preload() {
-    // Load assets like rabbit, carrots, poop, etc.
+    // Load assets for rabbit, carrots, poop, etc.
     this.load.image('rabbit', 'assets/rabbit.png');
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('poop', 'assets/poop.png');
@@ -10,36 +10,33 @@ function preload() {
 }
 
 function create() {
-    // Create background, rabbit (player), and other game objects
+    // Add background
     this.add.image(400, 300, 'background');
 
+    // Create player (rabbit)
     player = this.physics.add.sprite(400, 500, 'rabbit');
     player.setCollideWorldBounds(true);
 
-    // Add carrots and poop falling logic...
-
-    // Set up cursor keys for desktop users
+    // Set up keyboard controls
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Mobile touch control setup
+    // Set up touch controls for mobile
     this.input.on('pointerdown', (pointer) => {
         if (pointer.x < this.cameras.main.width / 2) {
-            // Touch on the left side, move left
-            player.setVelocityX(-160);
+            player.setVelocityX(-160); // Move left on touch
         } else {
-            // Touch on the right side, move right
-            player.setVelocityX(160);
+            player.setVelocityX(160); // Move right on touch
         }
     });
 
-    // Stop the player when the touch is released
+    // Stop movement when the touch ends
     this.input.on('pointerup', () => {
         player.setVelocityX(0);
     });
 }
 
 function update() {
-    // Handle desktop keyboard controls
+    // Handle keyboard controls for desktop
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
     } else if (cursors.right.isDown) {
@@ -48,12 +45,12 @@ function update() {
         player.setVelocityX(0);  // Stop the player if no key is pressed
     }
 
-    // Handle mobile touch input
+    // Mobile touch input to keep the player moving while touching the screen
     if (this.input.activePointer.isDown) {
         if (this.input.activePointer.x < this.cameras.main.width / 2) {
-            player.setVelocityX(-160);
+            player.setVelocityX(-160); // Move left
         } else {
-            player.setVelocityX(160);
+            player.setVelocityX(160); // Move right
         }
     }
 }
@@ -62,11 +59,10 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    parent: 'phaser-game', // Ensure it's attached to the correct DOM element
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 0 }, // Gravity should be disabled for side-to-side movement
+            gravity: { y: 0 }, // No gravity for side-to-side movement
             debug: false
         }
     },
