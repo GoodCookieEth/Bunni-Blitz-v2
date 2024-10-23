@@ -7,7 +7,7 @@ function preload() {
     this.load.image('rabbit', 'assets/rabbit.png');
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('poop', 'assets/poop.png');
-    this.load.image('background', 'assets/matrix_background.jpg'); // Changed to .jpg
+    this.load.image('background', 'assets/matrix_background.jpg'); // Ensure it's .jpg
 
     // Debug asset loading
     this.load.on('filecomplete', (key) => {
@@ -38,9 +38,13 @@ function create() {
         } else {
             player.setVelocityX(160); // Move right on touch
         }
-        // Resume audio context
+        // Resume audio context after user interaction
         if (this.sound.context.state === 'suspended') {
-            this.sound.context.resume();
+            this.sound.context.resume().then(() => {
+                console.log("AudioContext resumed.");
+            }).catch((error) => {
+                console.error("AudioContext resume failed: ", error);
+            });
         }
     });
 
@@ -48,6 +52,17 @@ function create() {
     this.input.on('pointerup', () => {
         isTouchActive = false; // Touch input is no longer active
         player.setVelocityX(0);
+    });
+
+    // Resume AudioContext for keyboard input
+    this.input.keyboard.on('keydown', () => {
+        if (this.sound.context.state === 'suspended') {
+            this.sound.context.resume().then(() => {
+                console.log("AudioContext resumed.");
+            }).catch((error) => {
+                console.error("AudioContext resume failed: ", error);
+            });
+        }
     });
 }
 
