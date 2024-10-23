@@ -1,39 +1,60 @@
-function resumeAudioContext() {
-    if (this.sound.context.state === 'suspended') {
-        this.sound.context.resume().then(() => {
-            console.log('AudioContext resumed');
-        }).catch((error) => {
-            console.error('Failed to resume AudioContext', error);
-        });
-    }
+let player;
+let cursors;
+
+function preload() {
+    // Load assets for rabbit
+    this.load.image('rabbit', 'assets/rabbit.png');
+
+    // Debug asset loading
+    this.load.on('filecomplete', (key) => {
+        console.log(`Asset loaded: ${key}`);
+    });
+
+    this.load.on('loaderror', (file) => {
+        console.error(`Failed to load: ${file.src}`);
+    });
 }
 
 function create() {
-    // Add background
-    this.add.image(400, 300, 'background');
+    // Set background color for troubleshooting
+    this.cameras.main.setBackgroundColor('#4488aa');
 
-    // Create player (rabbit)
-    player = this.physics.add.sprite(400, 500, 'rabbit');
+    // Create a simple test sprite
+    player = this.physics.add.sprite(400, 300, 'rabbit');
     player.setCollideWorldBounds(true);
 
-    // Set up keyboard controls
+    console.log("Player created: ", player);
+}
+
+function update() {
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Handle keyboard input and resume AudioContext on interaction
-    this.input.keyboard.on('keydown', resumeAudioContext, this);
-
-    // Set up touch controls for mobile and resume AudioContext
-    this.input.on('pointerdown', (pointer) => {
-        resumeAudioContext.call(this);  // Ensure audio context is resumed
-        if (pointer.x < this.cameras.main.width / 2) {
-            player.setVelocityX(-160); // Move left on touch
-        } else {
-            player.setVelocityX(160); // Move right on touch
-        }
-    });
-
-    // Stop movement when the touch ends
-    this.input.on('pointerup', () => {
+    if (cursors.left.isDown) {
+        player.setVelocityX(-160);
+    } else if (cursors.right.isDown) {
+        player.setVelocityX(160);
+    } else {
         player.setVelocityX(0);
-    });
+    }
 }
+
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: false
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+console.log("Game canvas is being created...");
+const game = new Phaser.Game(config);
