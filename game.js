@@ -1,13 +1,13 @@
 let player;
 let cursors;
-let isTouchActive = false;
+let isTouchActive = false; // Track if touch input is being used
 
 function preload() {
     // Load assets for rabbit, carrots, poop, etc.
     this.load.image('rabbit', 'assets/rabbit.png');
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('poop', 'assets/poop.png');
-    this.load.image('background', 'assets/matrix_background.png');
+    this.load.image('background', 'assets/matrix_background.jpg'); // Changed to .jpg
 
     // Debug asset loading
     this.load.on('filecomplete', (key) => {
@@ -32,38 +32,44 @@ function create() {
 
     // Set up touch controls for mobile
     this.input.on('pointerdown', (pointer) => {
-        isTouchActive = true;
+        isTouchActive = true; // Touch is now active
         if (pointer.x < this.cameras.main.width / 2) {
             player.setVelocityX(-160); // Move left on touch
         } else {
             player.setVelocityX(160); // Move right on touch
         }
+        // Resume audio context
+        if (this.sound.context.state === 'suspended') {
+            this.sound.context.resume();
+        }
     });
 
     // Stop movement when the touch ends
     this.input.on('pointerup', () => {
-        isTouchActive = false;
+        isTouchActive = false; // Touch input is no longer active
         player.setVelocityX(0);
     });
 }
 
 function update() {
+    // Only process keyboard input if touch input is not active
     if (!isTouchActive) {
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
         } else if (cursors.right.isDown) {
             player.setVelocityX(160);
         } else {
-            player.setVelocityX(0);
+            player.setVelocityX(0); // Stop movement when no key is pressed
         }
     }
 
+    // Mobile touch input continues to move the player while touching
     if (this.input.activePointer.isDown) {
-        isTouchActive = true;
+        isTouchActive = true; // Track active touch input
         if (this.input.activePointer.x < this.cameras.main.width / 2) {
-            player.setVelocityX(-160);
+            player.setVelocityX(-160); // Move left
         } else {
-            player.setVelocityX(160);
+            player.setVelocityX(160); // Move right
         }
     }
 }
@@ -75,7 +81,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 0 },
+            gravity: { y: 0 }, // No gravity for side-to-side movement
             debug: false
         }
     },
