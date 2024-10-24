@@ -141,11 +141,12 @@ function hitPoop(player, poop) {
 
     // Check if score is >= 1500 and show the victory message if true
     if (score >= 1500) {
-        victoryText = this.add.text(400, 250, 'TEST TEST TEST', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5);
+        // Display the victory message on top of everything else
+        victoryText = this.add.text(400, 250, 'TEST TEST TEST', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
     }
 
     // Add Reset Button to restart game
-    let resetButton = this.add.text(400, 300, 'Reset', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5);
+    let resetButton = this.add.text(400, 300, 'Reset', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5).setDepth(1);
     resetButton.setInteractive();
     resetButton.on('pointerdown', () => {
         console.log('Game Reset');
