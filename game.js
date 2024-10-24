@@ -124,12 +124,6 @@ function update() {
             carrot.x = Phaser.Math.Between(50, 750);  // Respawn carrot at random position
         }
     });
-
-    // Check if score reaches 1500
-    if (score >= 1500 && !victoryText) {
-        // Display victory message
-        victoryText = this.add.text(400, 250, 'TEST TEST TEST', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5);
-    }
 }
 
 // Collecting carrots
@@ -145,6 +139,11 @@ function hitPoop(player, poop) {
     player.setTint(0xff0000);  // Rabbit turns red on collision
     gameOver = true;
 
+    // Check if score is >= 1500 and show the victory message if true
+    if (score >= 1500) {
+        victoryText = this.add.text(400, 250, 'TEST TEST TEST', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5);
+    }
+
     // Add Reset Button to restart game
     let resetButton = this.add.text(400, 300, 'Reset', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5);
     resetButton.setInteractive();
@@ -155,7 +154,9 @@ function hitPoop(player, poop) {
         score = 0;  // Reset score
         poopCounter = 0;  // Reset poop counter
         survivalTimer = 0;  // Reset survival timer
-        victoryText = null;  // Reset victory text
+        if (victoryText) {
+            victoryText.destroy();  // Remove the victory message on reset
+        }
     });
 }
 
