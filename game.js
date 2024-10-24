@@ -30,6 +30,7 @@ let gameOver = false;
 let background;
 let poopCounter = 0;  // Track poop to manage carrot ratio
 let survivalTimer = 0;  // Timer for survival points
+let victoryText;  // Text for victory message
 
 function preload() {
     // Load images
@@ -123,6 +124,12 @@ function update() {
             carrot.x = Phaser.Math.Between(50, 750);  // Respawn carrot at random position
         }
     });
+
+    // Check if score reaches 1500
+    if (score >= 1500 && !victoryText) {
+        // Display victory message
+        victoryText = this.add.text(400, 250, 'TEST TEST TEST', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5);
+    }
 }
 
 // Collecting carrots
@@ -148,6 +155,7 @@ function hitPoop(player, poop) {
         score = 0;  // Reset score
         poopCounter = 0;  // Reset poop counter
         survivalTimer = 0;  // Reset survival timer
+        victoryText = null;  // Reset victory text
     });
 }
 
