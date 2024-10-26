@@ -72,7 +72,7 @@ function create() {
 
     // Create group of cookies
     cookies = this.physics.add.group({
-        setScale: { x: 0.1, y: 0.1 } // Set cookie size
+        setScale: { x: 0.05, y: 0.05 } // Set cookie size smaller (5% of original)
     });
 
     // Score and lives text, place them below the game area
@@ -152,6 +152,7 @@ function update() {
 function spawnCookie() {
     let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie');
     cookie.setVelocityY(100); // Cookies fall slower
+    cookie.setScale(0.05); // Make the cookie smaller (5% of original size)
 }
 
 // Collecting carrots
