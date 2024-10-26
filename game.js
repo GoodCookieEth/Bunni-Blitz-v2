@@ -1,3 +1,5 @@
+// Initialize Phaser Game Config after defining the classes
+
 // Intro Scene to show a message before the game starts
 class IntroScene extends Phaser.Scene {
     constructor() {
