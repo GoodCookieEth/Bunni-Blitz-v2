@@ -97,9 +97,9 @@ function create() {
         loop: true
     });
 
-    // Random cookie spawn every 20-30 seconds
+    // Random cookie spawn every 15-25 seconds
     this.time.addEvent({
-        delay: Phaser.Math.Between(20000, 30000), // Random delay between 20 and 30 seconds
+        delay: Phaser.Math.Between(15000, 25000), // Random delay between 15 and 25 seconds
         callback: spawnCookie,
         callbackScope: this,
         loop: true
@@ -151,6 +151,7 @@ function spawnCookie() {
     let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie');
     cookie.setVelocityY(100); // Cookies fall slower
     cookie.setScale(0.01); // Make the cookie very small (1% of original size)
+    console.log('Cookie spawned'); // Log to track when cookies are spawned
 }
 
 // Collecting carrots
