@@ -1,21 +1,3 @@
-// Initialize Phaser Game Config
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    parent: 'game-container', // Center the game in the HTML container
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 }, // No gravity for the rabbit; objects will fall from the top
-            debug: false
-        }
-    },
-    scene: [IntroScene, MainGameScene] // Add two scenes: intro and main game
-};
-
-const game = new Phaser.Game(config);
-
 // Intro Scene to show a message before the game starts
 class IntroScene extends Phaser.Scene {
     constructor() {
@@ -210,3 +192,21 @@ class MainGameScene extends Phaser.Scene {
         }
     }
 }
+
+// Initialize Phaser Game Config
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'game-container', // Center the game in the HTML container
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 }, // No gravity for the rabbit; objects will fall from the top
+            debug: false
+        }
+    },
+    scene: [IntroScene, MainGameScene] // Add two scenes: intro and main game
+};
+
+const game = new Phaser.Game(config);
