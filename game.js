@@ -118,6 +118,11 @@ class MainGameScene extends Phaser.Scene {
         if (Math.random() < 0.04) {
             let poop = this.poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
             poop.setVelocityY(200);
+
+            // **Adjust the collision box size for poop to be smaller**
+            poop.body.setSize(poop.width * 0.6, poop.height * 0.6); // Shrink the collision area to 60%
+            poop.body.setOffset(poop.width * 0.2, poop.height * 0.2); // Center the collision area
+
             this.poopCounter++;
 
             // Spawn a carrot for every two poops
@@ -139,7 +144,7 @@ class MainGameScene extends Phaser.Scene {
     spawnCookie() {
         let cookie = this.cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie');
         cookie.setVelocityY(100); // Cookies fall slower
-        cookie.setScale(0.5); // Set the cookie to 50% of the original size
+        cookie.setScale(0.15); // **Set the cookie to 15% of the original size**
         console.log('Cookie spawned');
     }
 
