@@ -32,6 +32,7 @@ let livesText;
 let gameOver = false;
 let background;
 let poopCounter = 0;
+let poopSpawnRate = 5000; // Initial poop spawn rate (milliseconds)
 let survivalTimer = 0;
 let victoryText;
 let lives = 0;
@@ -84,6 +85,14 @@ function create() {
         this.physics.add.collider(player, poopEmojis, hitPoop, null, this);
 
         this.time.addEvent({ delay: 200, callback: addSurvivalPoints, callbackScope: this, loop: true });
+        
+        // Poop spawn timer with dynamic increase over time
+        this.time.addEvent({
+            delay: poopSpawnRate,
+            callback: increaseDifficulty,
+            callbackScope: this,
+            loop: true
+        });
     } catch (error) {
         console.error('Error in create function:', error);
         alert('An error occurred while initializing the game.');
@@ -116,7 +125,6 @@ function update(time, delta) {
         if (carrot.y > 600) {
             carrot.y = -50;
             carrot.x = Phaser.Math.Between(50, 750);
-            carrot.setVelocityY(150); // Fixed velocity for carrots
         }
     });
 
@@ -129,24 +137,31 @@ function update(time, delta) {
 }
 
 function spawnItems() {
-    // Poop
-    if (poopEmojis.countActive(true) < 10) {  
+    // Always spawn something
+    let itemType = Phaser.Math.Between(1, 3); // 1 for poop, 2 for carrot, 3 for cookie
+    
+    if (itemType === 1 && poopEmojis.countActive(true) < 10) {
         let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
-        poop.setVelocityY(200); // Fixed velocity for poop
+        poop.setVelocityY(200); // Fixed velocity
         poopCounter++;
-        // Ensure a carrot spawns with every second poop
-        if (poopCounter % 2 === 0) {
-            let carrot = carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1);
-            carrot.setVelocityY(150); // Fixed velocity for carrots
-        }
+    } else if (itemType === 2 && carrots.countActive(true) < 15) {
+        let carrot = carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1);
+        carrot.setVelocityY(150); // Fixed velocity
+    } else if (itemType === 3 && cookies.countActive(true) < 3) {
+        let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1);
+        cookie.setVelocityY(100); // Fixed velocity
+    }
+}
+
+function increaseDifficulty() {
+    if (poopEmojis.countActive(true) < 10 + poopCounter / 2) {
+        let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
+        poop.setVelocityY(200);
+        poopCounter++;
     }
 
-    // Cookies
-    if (cookies.countActive(true) < 3) { 
-        // Changed to always spawn if there's space
-        let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1);
-        cookie.setVelocityY(100); // Fixed velocity for cookies
-    }
+    // Gradually increase poop spawn rate to make it more challenging
+    poopSpawnRate = Math.max(2000, poopSpawnRate - 200);  // Decrease spawn rate but not lower than 2000 ms
 }
 
 // Collecting carrots
@@ -174,7 +189,7 @@ function hitPoop(player, poop) {
         player.setTint(0xff0000);
         gameOver = true;
         if (score >= 1500) {
-            victoryText = this.add.text(400, 250, 'Play Again!', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
+            victoryText = this.add.text(400, 250, 'You won!', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
         }
         let resetButton = this.add.text(400, 300, 'Restart', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5).setDepth(1);
         resetButton.setInteractive();
@@ -184,6 +199,7 @@ function hitPoop(player, poop) {
             gameOver = false;
             score = 0;
             poopCounter = 0;
+            poopSpawnRate = 5000;  // Reset spawn rate
             survivalTimer = 0;
             lives = 0;
             livesText.setText('Lives: ' + lives);
