@@ -8,7 +8,8 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: false
+            debug: false,
+            fps: 60  // Ensure physics updates at a constant rate
         }
     },
     scene: {
@@ -34,6 +35,7 @@ let poopCounter = 0;
 let survivalTimer = 0;
 let victoryText;
 let lives = 0;
+let gameTime = 0; // Tracks game time to ensure items spawn
 
 function preload() {
     try {
@@ -88,10 +90,12 @@ function create() {
     }
 }
 
-function update() {
+function update(time, delta) {
     if (gameOver) return;
 
-    background.tilePositionY += 2;
+    gameTime += delta; // Increment game time
+
+    background.tilePositionY += 1; // Slow down background movement for clarity
 
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
@@ -101,18 +105,13 @@ function update() {
         player.setVelocityX(0);
     }
 
-    if (Math.random() < 0.036) {
-        if (poopEmojis.countActive(true) < 20) {  // Limit to 20 poops on screen at once
-            let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
-            poop.setVelocityY(200);
-            poopCounter++;
-            if (poopCounter % 2 === 0 && carrots.countActive(true) < 10) {
-                carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1).setVelocityY(150);
-            }
-        }
+    // Spawn logic using gameTime to ensure items are always spawning
+    if (gameTime > 500) { // Spawn every half second
+        spawnItems();
+        gameTime = 0; // Reset gameTime after spawning
     }
 
-    // Move carrots back to the top if they fall off screen
+    // Recycle carrots
     carrots.children.iterate((carrot) => {
         if (carrot.y > 600) {
             carrot.y = -50;
@@ -120,17 +119,31 @@ function update() {
         }
     });
 
-    // Spawn cookies, limit to 5 on screen
-    if (Math.random() < 0.002 && cookies.countActive(true) < 5) {
-        cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1).setVelocityY(100);
-    }
-
-    // Destroy cookies that have fallen off screen
+    // Destroy cookies off screen
     cookies.children.iterate((cookie) => {
         if (cookie.y > 600) {
             cookie.destroy();
         }
     });
+}
+
+function spawnItems() {
+    // Poop
+    if (poopEmojis.countActive(true) < 10) {  // Fewer poops to reduce cluttering
+        let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
+        poop.setVelocityY(Phaser.Math.Between(100, 250)); // Random velocity for variety
+        poopCounter++;
+        if (poopCounter % 2 === 0 && carrots.countActive(true) < 15) { // More carrots allowed on screen
+            let carrot = carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1);
+            carrot.setVelocityY(Phaser.Math.Between(50, 150)); // Slower carrots
+        }
+    }
+
+    // Cookies
+    if (Math.random() < 0.015 && cookies.countActive(true) < 3) { // Lower chance, fewer cookies
+        let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1);
+        cookie.setVelocityY(Phaser.Math.Between(50, 100)); // Slower cookies
+    }
 }
 
 // Collecting carrots
