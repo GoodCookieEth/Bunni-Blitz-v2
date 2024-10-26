@@ -3,11 +3,11 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    parent: 'game-container', // Center the game in the HTML container
+    parent: 'game-container',
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 0 }, // No gravity for the rabbit; objects will fall from the top
+            gravity: { y: 0 },
             debug: false
         }
     },
@@ -24,84 +24,75 @@ let player;
 let cursors;
 let carrots;
 let poopEmojis;
+let cookies;
 let score = 0;
 let scoreText;
+let livesText;
 let gameOver = false;
 let background;
-let poopCounter = 0; // Track poop to manage carrot ratio
-let survivalTimer = 0; // Timer for survival points
-let victoryText; // Text for victory message
+let poopCounter = 0;
+let survivalTimer = 0;
+let victoryText;
 let lives = 0;
-let cookies;
-let livesText;
 
 function preload() {
-    // Load images
-    this.load.image('background', 'assets/matrix_background.png');
-    this.load.image('rabbit', 'assets/rabbit.png');
-    this.load.image('carrot', 'assets/carrot.png');
-    this.load.image('poop', 'assets/poop.png');
-    this.load.image('cookie', 'assets/cookie.png'); // Load cookie image
-    console.log('Images loaded.');
+    try {
+        this.load.image('background', 'assets/matrix_background.png');
+        this.load.image('rabbit', 'assets/rabbit.png');
+        this.load.image('carrot', 'assets/carrot.png');
+        this.load.image('poop', 'assets/poop.png');
+        this.load.image('cookie', 'assets/cookie.png');
+        console.log('Images loaded.');
+    } catch (error) {
+        console.error('Error loading images:', error);
+    }
 }
 
 function create() {
-    // Add looping background
-    background = this.add.tileSprite(400, 300, 800, 600, 'background');
+    try {
+        background = this.add.tileSprite(400, 300, 800, 600, 'background');
+        
+        player = this.physics.add.sprite(400, 550, 'rabbit').setScale(0.2);
+        player.setCollideWorldBounds(true);
+        player.body.setBoundsRectangle(new Phaser.Geom.Rectangle(0, 0, 800, 600));
 
-    // Create the player (rabbit) and scale it down
-    player = this.physics.add.sprite(400, 550, 'rabbit').setScale(0.2);
-    player.setCollideWorldBounds(true); // Rabbit can't leave the screen
-    // Re-expand rabbit movement to the full screen width
-    player.body.setBoundsRectangle(new Phaser.Geom.Rectangle(0, 0, 800, 600));
+        carrots = this.physics.add.group({
+            key: 'carrot',
+            repeat: 5,
+            setXY: { x: 50, y: -50, stepX: 150 },
+            setScale: { x: 0.1, y: 0.1 }
+        });
 
-    // Create group of carrots
-    carrots = this.physics.add.group({
-        key: 'carrot',
-        repeat: 5, // Start with a few carrots
-        setXY: { x: Phaser.Math.Between(50, 750), y: -50, stepY: 0 },
-        setScale: { x: 0.1, y: 0.1 } // Set carrot size
-    });
+        poopEmojis = this.physics.add.group({
+            setScale: { x: 0.1, y: 0.1 }
+        });
 
-    // Create group of poop
-    poopEmojis = this.physics.add.group({
-        setScale: { x: 0.1, y: 0.1 } // Set poop size
-    });
+        cookies = this.physics.add.group({
+            key: 'cookie',
+            setScale: { x: 0.1, y: 0.1 }
+        });
 
-    // Create group for cookies
-    cookies = this.physics.add.group({
-        key: 'cookie',
-        setScale: { x: 0.1, y: 0.1 } // Scale the cookie
-    });
+        scoreText = this.add.text(16, 570, 'Score: 0', { fontSize: '32px', fill: '#FFF' });
+        livesText = this.add.text(600, 570, 'Lives: 0', { fontSize: '32px', fill: '#FFF' });
 
-    // Score text, place it below the game area
-    scoreText = this.add.text(16, 570, 'Score: 0', { fontSize: '32px', fill: '#FFF' });
+        cursors = this.input.keyboard.createCursorKeys();
 
-    // Lives text
-    livesText = this.add.text(600, 570, 'Lives: 0', { fontSize: '32px', fill: '#FFF' });
+        this.physics.add.overlap(player, carrots, collectCarrot, null, this);
+        this.physics.add.overlap(player, cookies, collectCookie, null, this);
+        this.physics.add.collider(player, poopEmojis, hitPoop, null, this);
 
-    // Input
-    cursors = this.input.keyboard.createCursorKeys();
-
-    // Carrot and Cookie collection
-    this.physics.add.overlap(player, carrots, collectCarrot, null, this);
-    this.physics.add.overlap(player, cookies, collectCookie, null, this);
-
-    // Poop collision
-    this.physics.add.collider(player, poopEmojis, hitPoop, null, this);
-
-    // Add survival score every 1/5th of a second
-    this.time.addEvent({ delay: 200, callback: addSurvivalPoints, callbackScope: this, loop: true });
+        this.time.addEvent({ delay: 200, callback: addSurvivalPoints, callbackScope: this, loop: true });
+    } catch (error) {
+        console.error('Error in create function:', error);
+        alert('An error occurred while initializing the game.');
+    }
 }
 
 function update() {
-    if (gameOver) {
-        return;
-    }
-    // Move the background for endless effect
+    if (gameOver) return;
+
     background.tilePositionY += 2;
 
-    // Player movement (left and right, full screen width)
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
     } else if (cursors.right.isDown) {
@@ -110,34 +101,32 @@ function update() {
         player.setVelocityX(0);
     }
 
-    // Constantly spawn poop emojis from the top
-    if (Math.random() < 0.036) { // Reduced poop frequency by 10%
-        let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
-        poop.setVelocityY(200); // Poop falls down
-        poopCounter++;
-        // Spawn a carrot for every two poops
-        if (poopCounter % 2 === 0) {
-            let carrot = carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1);
-            carrot.setVelocityY(150); // Carrots fall down slower
+    if (Math.random() < 0.036) {
+        if (poopEmojis.countActive(true) < 20) {  // Limit to 20 poops on screen at once
+            let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
+            poop.setVelocityY(200);
+            poopCounter++;
+            if (poopCounter % 2 === 0 && carrots.countActive(true) < 10) {
+                carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1).setVelocityY(150);
+            }
         }
     }
 
-    // Make sure carrots continue to fall
-    carrots.children.iterate(function(carrot) {
+    // Move carrots back to the top if they fall off screen
+    carrots.children.iterate((carrot) => {
         if (carrot.y > 600) {
             carrot.y = -50;
-            carrot.x = Phaser.Math.Between(50, 750); // Respawn carrot at random position
+            carrot.x = Phaser.Math.Between(50, 750);
         }
     });
 
-    // Spawn a cookie randomly
-    if (Math.random() < 0.002) { // 0.2% chance each frame, adjust for rarity
-        let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1);
-        cookie.setVelocityY(100); // Cookies fall slower than carrots but faster than poops
+    // Spawn cookies, limit to 5 on screen
+    if (Math.random() < 0.002 && cookies.countActive(true) < 5) {
+        cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1).setVelocityY(100);
     }
 
-    // Update cookie positions if they fall off-screen
-    cookies.children.iterate(function(cookie) {
+    // Destroy cookies that have fallen off screen
+    cookies.children.iterate((cookie) => {
         if (cookie.y > 600) {
             cookie.destroy();
         }
@@ -146,14 +135,14 @@ function update() {
 
 // Collecting carrots
 function collectCarrot(player, carrot) {
-    carrot.disableBody(true, true); // Remove the carrot
-    score += 100; // Increase score by 100 for collecting a carrot
+    carrot.disableBody(true, true);
+    score += 100;
     scoreText.setText('Score: ' + score);
 }
 
 // Collecting cookie
 function collectCookie(player, cookie) {
-    cookie.disableBody(true, true); // Remove the cookie
+    cookie.disableBody(true, true);
     lives++;
     livesText.setText('Lives: ' + lives);
 }
@@ -163,33 +152,26 @@ function hitPoop(player, poop) {
     if (lives > 0) {
         lives--;
         livesText.setText('Lives: ' + lives);
-        poop.disableBody(true, true); // Remove the poop if a life is used
+        poop.disableBody(true, true);
     } else {
-        this.physics.pause(); // Stop the game
-        player.setTint(0xff0000); // Rabbit turns red on collision
+        this.physics.pause();
+        player.setTint(0xff0000);
         gameOver = true;
-
-        // Check if score is >= 1500 and show the victory message if true
         if (score >= 1500) {
-            // Display the victory message on top of everything else
             victoryText = this.add.text(400, 250, 'You won!', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
         }
-
-        // Add Reset Button to restart game
         let resetButton = this.add.text(400, 300, 'Restart', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5).setDepth(1);
         resetButton.setInteractive();
         resetButton.on('pointerdown', () => {
             console.log('Game Reset');
-            this.scene.restart(); // Restart the game
-            gameOver = false; // Reset game over flag
-            score = 0; // Reset score
-            poopCounter = 0; // Reset poop counter
-            survivalTimer = 0; // Reset survival timer
-            lives = 0; // Reset lives
+            this.scene.restart();
+            gameOver = false;
+            score = 0;
+            poopCounter = 0;
+            survivalTimer = 0;
+            lives = 0;
             livesText.setText('Lives: ' + lives);
-            if (victoryText) {
-                victoryText.destroy(); // Remove the victory message on reset
-            }
+            if (victoryText) victoryText.destroy();
         });
     }
 }
