@@ -1,13 +1,11 @@
-// Initialize Phaser Game Config after defining the classes
-
-// Intro Scene to show a message before the game starts
+// Define the Intro Scene first
 class IntroScene extends Phaser.Scene {
     constructor() {
         super({ key: 'IntroScene' });
     }
 
     preload() {
-        // Load the font and necessary images for intro if needed
+        // Preload resources needed for the intro
     }
 
     create() {
@@ -28,7 +26,7 @@ class IntroScene extends Phaser.Scene {
     }
 }
 
-// Main Game Scene
+// Define the Main Game Scene
 class MainGameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MainGameScene' });
