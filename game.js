@@ -150,7 +150,7 @@ function update() {
 function spawnCookie() {
     let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie');
     cookie.setVelocityY(100); // Cookies fall slower
-    cookie.setScale(0.01); // Make the cookie very small (1% of original size)
+    cookie.setScale(0.01); // Make the cookie very small (15% of original size)
     console.log('Cookie spawned'); // Log to track when cookies are spawned
 }
 
