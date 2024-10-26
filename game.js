@@ -3,7 +3,7 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    parent: 'game-container',
+    parent: 'game-container', // Center the game in the HTML container
     physics: {
         default: 'arcade',
         arcade: {
@@ -108,9 +108,9 @@ class MainGameScene extends Phaser.Scene {
             loop: true
         });
 
-        // Random cookie spawn every 10-20 seconds
+        // Random cookie spawn every 10-15 seconds
         this.time.addEvent({
-            delay: Phaser.Math.Between(10000, 20000),
+            delay: Phaser.Math.Between(10000, 15000),
             callback: this.spawnCookie,
             callbackScope: this,
             loop: true
@@ -157,7 +157,7 @@ class MainGameScene extends Phaser.Scene {
     spawnCookie() {
         let cookie = this.cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie');
         cookie.setVelocityY(100); // Cookies fall slower
-        cookie.setScale(0.15); // Make the cookie larger (15% of original size)
+        cookie.setScale(0.5); // Set the cookie to 50% of the original size
         console.log('Cookie spawned');
     }
 
