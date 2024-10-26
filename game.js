@@ -116,6 +116,7 @@ function update(time, delta) {
         if (carrot.y > 600) {
             carrot.y = -50;
             carrot.x = Phaser.Math.Between(50, 750);
+            carrot.setVelocityY(150); // Fixed velocity for carrots
         }
     });
 
@@ -129,20 +130,22 @@ function update(time, delta) {
 
 function spawnItems() {
     // Poop
-    if (poopEmojis.countActive(true) < 10) {  // Fewer poops to reduce cluttering
+    if (poopEmojis.countActive(true) < 10) {  
         let poop = poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
-        poop.setVelocityY(Phaser.Math.Between(100, 250)); // Random velocity for variety
+        poop.setVelocityY(200); // Fixed velocity for poop
         poopCounter++;
-        if (poopCounter % 2 === 0 && carrots.countActive(true) < 15) { // More carrots allowed on screen
+        // Ensure a carrot spawns with every second poop
+        if (poopCounter % 2 === 0) {
             let carrot = carrots.create(Phaser.Math.Between(50, 750), -50, 'carrot').setScale(0.1);
-            carrot.setVelocityY(Phaser.Math.Between(50, 150)); // Slower carrots
+            carrot.setVelocityY(150); // Fixed velocity for carrots
         }
     }
 
     // Cookies
-    if (Math.random() < 0.015 && cookies.countActive(true) < 3) { // Lower chance, fewer cookies
+    if (cookies.countActive(true) < 3) { 
+        // Changed to always spawn if there's space
         let cookie = cookies.create(Phaser.Math.Between(50, 750), -50, 'cookie').setScale(0.1);
-        cookie.setVelocityY(Phaser.Math.Between(50, 100)); // Slower cookies
+        cookie.setVelocityY(100); // Fixed velocity for cookies
     }
 }
 
@@ -171,7 +174,7 @@ function hitPoop(player, poop) {
         player.setTint(0xff0000);
         gameOver = true;
         if (score >= 1500) {
-            victoryText = this.add.text(400, 250, 'You won!', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
+            victoryText = this.add.text(400, 250, 'Play Again!', { fontSize: '48px', fill: '#FFF' }).setOrigin(0.5).setDepth(1);
         }
         let resetButton = this.add.text(400, 300, 'Restart', { fontSize: '32px', fill: '#FFF', backgroundColor: '#000' }).setOrigin(0.5).setDepth(1);
         resetButton.setInteractive();
