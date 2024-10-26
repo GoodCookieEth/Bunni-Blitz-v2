@@ -71,9 +71,7 @@ function create() {
     });
 
     // Create group of cookies
-    cookies = this.physics.add.group({
-        setScale: { x: 0.05, y: 0.05 } // Set cookie size smaller (5% of original)
-    });
+    cookies = this.physics.add.group();
 
     // Score and lives text, place them below the game area
     scoreText = this.add.text(16, 570, 'Score: 0', { fontSize: '32px', fill: '#FFF' });
