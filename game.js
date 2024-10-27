@@ -115,7 +115,7 @@ class MainGameScene extends Phaser.Scene {
         }
 
         // Constantly spawn poop emojis from the top
-        if (Math.random() < 0.03) {
+        if (Math.random() < 0.03.5) {
             let poop = this.poopEmojis.create(Phaser.Math.Between(50, 750), -50, 'poop').setScale(0.1);
             poop.setVelocityY(200);
 
